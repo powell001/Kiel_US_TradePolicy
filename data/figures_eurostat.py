@@ -140,77 +140,112 @@ def us_bea_trade_balance():
 
 # BPM6 Services https://ec.europa.eu/eurostat/databrowser/view/bop_its6_det__custom_17603496/default/tablehttps://ec.europa.eu/eurostat/databrowser/view/bop_its6_det__custom_17603496/default/table
 
-#def eu_bop_2023_24():
+def eu_bop_2023_24():
 
-data = pd.read_csv(r"C:\Users\jpark\vscode\Kiel_US_TradePolicy\data\estat_bop_eu6_q_filtered_en.csv", encoding='utf-8')
+    data = pd.read_csv(r"C:\Users\jpark\vscode\Kiel_US_TradePolicy\data\estat_bop_eu6_q_filtered_en.csv", encoding='utf-8')
 
-#data = data[data['partner']=='US']
-data1 = data[['partner', 'Stock or flow', 'Balance of payments item', 'OBS_VALUE']]
+    #data = data[data['partner']=='US']
+    data1 = data[['partner', 'Stock or flow', 'Balance of payments item', 'OBS_VALUE']]
 
-data1['Stock or flow'][data1['Stock or flow'] == 'Credit'] = 'Exports'
-data1['Stock or flow'][data1['Stock or flow'] == 'Debit'] = 'Imports'
+    data1['Stock or flow'][data1['Stock or flow'] == 'Credit'] = 'Exports'
+    data1['Stock or flow'][data1['Stock or flow'] == 'Debit'] = 'Imports'
 
-print(data1)
+    print(data1)
 
-data1['partner'][data1['partner'] == 'US'] = 'USA'
-data1['partner'][data1['partner'] == 'BR'] = 'Brazil'
-data1['partner'][data1['partner'] == 'CA'] = 'Canada'
-data1['partner'][data1['partner'] == 'CH'] = 'Switzerland'
-data1['partner'][data1['partner'] == 'IN'] = 'India'
-data1['partner'][data1['partner'] == 'JP'] = 'Japan'
-data1['partner'][data1['partner'] == 'OFFSHO'] = 'Offshore'
-data1['partner'][data1['partner'] == 'RU'] = 'Russia'
-data1['partner'][data1['partner'] == 'UK'] = 'GBR'
-data1['partner'][data1['partner'] == 'CN_X_HK'] = 'China'
+    data1['partner'][data1['partner'] == 'US'] = 'USA'
+    data1['partner'][data1['partner'] == 'BR'] = 'Brazil'
+    data1['partner'][data1['partner'] == 'CA'] = 'Canada'
+    data1['partner'][data1['partner'] == 'CH'] = 'Switzerland'
+    data1['partner'][data1['partner'] == 'IN'] = 'India'
+    data1['partner'][data1['partner'] == 'JP'] = 'Japan'
+    data1['partner'][data1['partner'] == 'OFFSHO'] = 'Offshore'
+    data1['partner'][data1['partner'] == 'RU'] = 'Russia'
+    data1['partner'][data1['partner'] == 'UK'] = 'Britain'
+    data1['partner'][data1['partner'] == 'CN_X_HK'] = 'China'
+
+    credits1 = data1[data1['Stock or flow'] == 'Exports']
+    credits1['partner2'] = credits1['partner'] + '_exports'
+
+    debits1 = data1[data1['Stock or flow'] == 'Imports']
+    debits1['partner2'] = debits1['partner'] + '_imports'
+
+    data3 = pd.concat([credits1, debits1], ignore_index=True)
+    data3.rename(columns={'OBS_VALUE': 'Value'}, inplace=True)
+    data3 = data3[['partner2', 'Balance of payments item', 'Value']]
+    data3['Value'] = data3['Value']/1000
+
+    data3 = data3[data3['partner2'].isin(['USA_exports', 'Britain_exports', 'Switzerland_exports', 'China_exports', 'Japan_exports', 'India_exports', 'Brazil_exports', 'Canada_exports', 'Offshore_exports', 'Russia_exports', 
+                                        'USA_imports', 'Britain_imports', 'Switzerland_imports', 'China_imports', 'Japan_imports', 'India_imports', 'Brazil_imports', 'Canada_imports', 'Offshore_imports', 'Russia_imports'])]
+    data3.sort_values(by=['partner2'], inplace=True)  
+
+    data3 = data3.set_index(['partner2','Balance of payments item'])
+
+    xxxx = data3.unstack()
+
+    print(xxxx)
+
+    xxxx['sorter'] = [7,7,6,6,3,3,1,1,8,8,5,5,4,4,9,9,2,2,0,0]
+
+    xxxx.sort_values(by=['sorter'], inplace=True) 
+    xxxx.drop(columns=['sorter'], inplace=True)
+    xxxx.plot(kind='bar', stacked=True, alpha=1.0, rot=90, figsize=(12, 6))
+    plt.title('EU Balance of Payments by Partner')
+    plt.xlabel('')
+    plt.ylabel('Value')
+    plt.axvline(x = 1.5, color = 'grey', label = 'axvline - full height')
+    plt.axvline(x = 3.5, color = 'grey', label = 'axvline - full height')
+    plt.axvline(x = 5.5, color = 'grey', label = 'axvline - full height')
+    plt.axvline(x = 7.5, color = 'grey', label = 'axvline - full height')
+    plt.axvline(x = 9.5, color = 'grey', label = 'axvline - full height')
+    plt.axvline(x = 11.5, color = 'grey', label = 'axvline - full height')
+    plt.axvline(x = 13.5, color = 'grey', label = 'axvline - full height')
+    plt.axvline(x = 15.5, color = 'grey', label = 'axvline - full height')
+    plt.axvline(x = 17.5, color = 'grey', label = 'axvline - full height')
+    plt.tight_layout()
+    plt.show()
+
+# eu_bop_2023_24()
+
+def totalExports_Percent():
+    allexports = pd.read_csv(r"C:\Users\jpark\vscode\Kiel_US_TradePolicy\output\totalExports_Percent.csv",)
+    print(allexports.head())
+    allexports = allexports.iloc[:,1:]
+    allexports.rename(columns={'0': 'EU27'}, inplace=True)
+    allexports.index = np.arange(1995, 2024, 1)
+
+    allexports = allexports[['EU27', 'USA', 'CHN', 'DEU', 'IND', 'JPN', 'CAN']]
+
+    allexports.plot()
+    plt.grid()
 
 
-credits1 = data1[data1['Stock or flow'] == 'Exports']
-credits1['partner2'] = credits1['partner'] + '_exports'
+    plt.title('Exports as Percentage of Global Exports')
+    plt.xlabel('Year')
+    plt.ylabel('Share in global exports (%)')
 
-debits1 = data1[data1['Stock or flow'] == 'Imports']
-debits1['partner2'] = debits1['partner'] + '_imports'
+    plt.savefig(r"C:\Users\jpark\vscode\Kiel_US_TradePolicy\output\totalExports_Percent.png")
+    plt.show()
 
-data3 = pd.concat([credits1, debits1], ignore_index=True)
-data3.rename(columns={'OBS_VALUE': 'Value'}, inplace=True)
-data3 = data3[['partner2', 'Balance of payments item', 'Value']]
-data3['Value'] = data3['Value']/1000
+totalExports_Percent()
 
-data3 = data3[data3['partner2'].isin(['USA_exports', 'GBR_exports', 'Switzerland_exports', 'China_exports', 'Japan_exports', 'India_exports', 'Brazil_exports', 'Canada_exports', 'Offshore_exports', 'Russia_exports', 
-                                      'USA_imports', 'GBR_imports', 'Switzerland_imports', 'China_imports', 'Japan_imports', 'India_imports', 'Brazil_imports', 'Canada_imports', 'Offshore_imports', 'Russia_imports'])]
-data3.sort_values(by=['partner2'], inplace=True)  
+def totalExportsManufacturing_Percent():
+    allexports = pd.read_csv(r"C:\Users\jpark\vscode\Kiel_US_TradePolicy\output\totalManufacturingExports_Percent.csv")
+    print(allexports.head())
+    allexports = allexports.iloc[:,1:]
+    allexports.rename(columns={'0': 'EU27'}, inplace=True)
+    allexports.index = np.arange(1995, 2024, 1)
 
-data3 = data3.set_index(['partner2','Balance of payments item'])
+    allexports = allexports[['EU27', 'USA', 'CHN', 'DEU', 'IND', 'JPN', 'CAN']]
 
-xxxx = data3.unstack()
-
-print(xxxx)
-
-xxxx['sorter'] = [7,7,6,6,3,3,1,1,8,8,5,5,4,4,9,9,2,2,0,0]
-
-xxxx.sort_values(by=['sorter'], inplace=True) 
-xxxx.drop(columns=['sorter'], inplace=True)
-xxxx.plot(kind='bar', stacked=True, alpha=1.0, rot=90, figsize=(12, 6))
-plt.title('EU Balance of Payments by Partner')
-plt.xlabel('')
-plt.ylabel('Value')
-plt.tight_layout()
-plt.show()
+    allexports.plot()
+    plt.grid()
 
 
-# credits1 = credits1[credits1['partner'].isin(['US', 'UK', 'CH', 'CN_X_HK', 'JP', 'IN', 'BR', 'CA', 'OFFSHO', 'RU'])]
-# credits1 = credits1.set_index(['partner','Balance of payments item']).OBS_VALUE
-# credits1.unstack().plot(kind='bar', stacked=True)
-# plt.show()
+    plt.title('MANUFACTURING Exports as Percentage of Global Exports')
+    plt.xlabel('Year')
+    plt.ylabel('MANUFACTURINGShare in global exports (%)')
 
-################
-################
+    plt.savefig(r"C:\Users\jpark\vscode\Kiel_US_TradePolicy\output\totalManufacturingExports_Percent.png")
+    plt.show()
 
-# credits1.drop(columns=['Stock or flow'], inplace=True)
-# credits1 = credits1[credits1['partner'].isin(['US', 'UK', 'CH', 'CN_X_HK', 'JP', 'IN', 'BR', 'CA', 'OFFSHO', 'RU'])]
-# credits1.sort_values(by=['partner'], inplace=True)  
-# print(credits1)
-
-# credits2 = credits1.set_index(['partner','Balance of payments item'])
-# print(credits2)
-# credits2.unstack().plot(kind='bar', stacked=True)
-# plt.show()
+totalExportsManufacturing_Percent()
