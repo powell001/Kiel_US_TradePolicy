@@ -1,2 +1,9 @@
 baci/*.csv
 baci/archive/*.csv
+model_data/*.csv
+output/*.csv
+output/*.png
+wiot_data/*.xlsb
+data/*.csv
+data/*.xlsx
+*__pycache__
